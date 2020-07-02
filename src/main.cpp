@@ -1,7 +1,7 @@
 #include <iostream>
-#include "controller.h"
-#include "game.h"
 #include "renderer.h"
+#include "startMenu.h"
+#include "game.h"
 
 int main() {
   constexpr std::size_t kFramesPerSecond{60};
@@ -12,11 +12,11 @@ int main() {
   constexpr std::size_t kGridHeight{32};
 
   Renderer renderer(kScreenWidth, kScreenHeight, kGridWidth, kGridHeight);
-  Controller controller;
-  Game game(kGridWidth, kGridHeight);
-  game.Run(controller, renderer, kMsPerFrame);
+  StartMenu menu(kGridWidth, kGridHeight);
+  std::unique_ptr<Game> game = menu.Run(renderer, kMsPerFrame);
+  game->Run(renderer, kMsPerFrame);
   std::cout << "Game has terminated successfully!\n";
-  std::cout << "Score: " << game.GetScore() << "\n";
-  std::cout << "Size: " << game.GetSize() << "\n";
+  std::cout << "Score: " << game->GetScore() << "\n";
+  std::cout << "Size: " << game->GetSize() << "\n";
   return 0;
 }

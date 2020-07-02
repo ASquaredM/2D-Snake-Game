@@ -77,3 +77,5 @@ bool Snake::SnakeCell(int x, int y) {
   }
   return false;
 }
+void Snake::setlife(bool life) {alive = life;}
+bool Snake::isAlive() const {return alive;}

@@ -1,23 +1,49 @@
 #include "game.h"
 #include <iostream>
 #include "SDL.h"
+#include "snake.h"
 
-Game::Game(std::size_t grid_width, std::size_t grid_height)
-    : snake(grid_width, grid_height),
+Game::Game(std::size_t grid_width, std::size_t grid_height, Mode mode)
+    : snake(grid_width, grid_height, 0.01f),
       engine(dev()),
       random_w(0, static_cast<int>(grid_width)),
-      random_h(0, static_cast<int>(grid_height)) {
+      random_h(0, static_cast<int>(grid_height)),
+      _mode(mode)
+      {
+  switch (_mode) {
+  case Mode::kEasy:
+    snake.speed = 0.05f;
+    break;
+  case Mode::kMedium:
+    snake.speed = 0.1f;
+    break;
+  case Mode::kHard:
+    snake.speed = 0.3f;
+    break;
+  case Mode::kUnPlayable:
+    snake.speed = 1.0f;
+    break;
+  case Mode::kInsaine:
+    snake.speed = 5.0f;
+    break;
+  case Mode::Exit:
+    running = false;
+    break;
+
+  default:
+    snake.speed = 0.1f;
+    break;
+  }
   PlaceFood();
 }
 
-void Game::Run(Controller const &controller, Renderer &renderer,
+void Game::Run(Renderer &renderer,
                std::size_t target_frame_duration) {
   Uint32 title_timestamp = SDL_GetTicks();
   Uint32 frame_start;
   Uint32 frame_end;
   Uint32 frame_duration;
   int frame_count = 0;
-  bool running = true;
 
   while (running) {
     frame_start = SDL_GetTicks();
@@ -48,6 +74,11 @@ void Game::Run(Controller const &controller, Renderer &renderer,
       SDL_Delay(target_frame_duration - frame_duration);
     }
   }
+  if (!snake.isAlive()){
+    SDL_Delay(1000);
+    renderer.RenderGO();
+    SDL_Delay(2500);
+  }
 }
 
 void Game::PlaceFood() {
@@ -66,7 +97,10 @@ void Game::PlaceFood() {
 }
 
 void Game::Update() {
-  if (!snake.alive) return;
+  if (!snake.isAlive()) {
+    running = false;
+    return;
+  }
 
   snake.Update();
 
